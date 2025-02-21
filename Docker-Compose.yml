@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  mariadb:
+    image: mariadb:10
+    container_name: mariadb2
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: test
+    ports:
+      - "3309:3306"  # Ensure this matches the port in your DB_CONFIG
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  fastapi-app:
+    build: ./
+    container_name: fastapi-app
+    restart: always
+    depends_on:
+      - mariadb
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=mariadb
+      - DB_PORT=3306  # Internal Docker port
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_NAME=test
+    volumes:
+      - .:/app
+
+volumes:
+  mariadb_data:
